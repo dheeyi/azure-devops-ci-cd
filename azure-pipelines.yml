@@ -63,6 +63,7 @@ stages:
     dependsOn:
     - BuildDev
     - BuildStaging
+    condition: and(succeeded('BuildDev'), succeeded('BuildStaging'))
     displayName: Build Stage for Prod environment
     jobs:
       - job: BuildMobileAP
