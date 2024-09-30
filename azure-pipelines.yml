@@ -12,21 +12,33 @@ pool:
 
 stages:
   - stage: BuildDev
+    displayName: Build Stage for dev environment
     jobs:
       - job: BuildMobileAPP
+        displayName: Build Mobile App
       - job: BuildReactApp
+        displayName: Build React App
       - job: BuildNodeApp
+        displayName: Build Node App
 
   - stage: BuildStaging
+    displayName: Build Stage for Staging environment
     jobs:
       - job: BuildMobileAPP
+        displayName: Build Mobile App
       - job: BuildReactApp
+        displayName: Build Mobile App
       - job: BuildNodeApp
+        displayName: Build Mobile App
 
   - stage: BuildProd
+    displayName: Build Stage for Prod environment
     jobs:
-      - job: BuildMobileAPP
+      - job: BuildMobileAP
+        displayName: Build Mobile App
       - job: BuildReactApp
+        displayName: Build Mobile App
       - job: BuildNodeApp
+        displayName: Build Mobile App
 
 
