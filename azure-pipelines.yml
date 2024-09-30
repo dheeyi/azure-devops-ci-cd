@@ -8,7 +8,7 @@ stages:
   - stage: BuildDev
     displayName: Build Stage for dev environment
     jobs:
-      - job: BuildMobileAPP
+      - job: BuildMobileApp
         displayName: Build Mobile App
         steps:
           - script: echo building mobile application
@@ -16,16 +16,16 @@ stages:
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildReactApp
+        dependsOn: BuildMobileApp
         displayName: Build React App
-        dependsOn: BuildMobileAPP
         steps:
           - script: echo building react application
             displayName: Buildind React App
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildNodeApp
-        displayName: Build Node App
         dependsOn: BuildReactApp
+        displayName: Build Node App
         steps:
           - script: echo building node application
             displayName: Building NodeJS App
@@ -37,7 +37,7 @@ stages:
     condition: succeeded('BuildDev')
     displayName: Build Stage for Staging environment
     jobs:
-      - job: BuildMobileAPP
+      - job: BuildMobileApp
         displayName: Build Mobile App
         steps:
           - script: echo building mobile application
@@ -45,7 +45,7 @@ stages:
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildReactApp
-        dependsOn: BuildMobileAPP
+        dependsOn: BuildMobileApp
         displayName: Build React App
         steps:
           - script: echo building react application
@@ -68,7 +68,7 @@ stages:
     condition: and(succeeded('BuildDev'), succeeded('BuildStaging'))
     displayName: Build Stage for Prod environment
     jobs:
-      - job: BuildMobileAP
+      - job: BuildMobileApp
         displayName: Build Mobile App
         steps:
           - script: echo building mobile application
@@ -76,7 +76,7 @@ stages:
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildReactApp
-        dependsOn: BuildMobileAP
+        dependsOn: BuildMobileApp
         displayName: Build React App
         steps:
           - script: echo building react application
