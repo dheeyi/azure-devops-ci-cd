@@ -5,7 +5,6 @@ pool:
   vmImage: ubuntu-latest
 
 stages:
-  # Primera etapa - BuildDev
   - stage: BuildDev
     displayName: Build Stage for dev environment
     jobs:
@@ -14,22 +13,28 @@ stages:
         steps:
           - script: echo building mobile application
             displayName: Building Mobile App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
       - job: BuildReactApp
         dependsOn: BuildMobileApp
         displayName: Build React App
         steps:
           - script: echo building react application
-            displayName: Building React App
+            displayName: Buildind React App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
       - job: BuildNodeApp
         dependsOn: BuildReactApp
         displayName: Build Node App
         steps:
           - script: echo building node application
             displayName: Building NodeJS App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
 
-  # Segunda etapa - BuildStaging
   - stage: BuildStaging
-    dependsOn: BuildDev  # Espera a que el stage BuildDev termine
+    dependsOn: BuildDev
+    condition: succeeded('BuildDev')
     displayName: Build Stage for Staging environment
     jobs:
       - job: BuildMobileApp
@@ -37,22 +42,30 @@ stages:
         steps:
           - script: echo building mobile application
             displayName: Building Mobile App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
       - job: BuildReactApp
         dependsOn: BuildMobileApp
         displayName: Build React App
         steps:
           - script: echo building react application
             displayName: Building React App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
       - job: BuildNodeApp
         dependsOn: BuildReactApp
         displayName: Build Node App
         steps:
           - script: echo building node application
             displayName: Building NodeJS App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
 
-  # Tercera etapa - BuildProd
   - stage: BuildProd
-    dependsOn: BuildStaging  # Espera a que el stage BuildStaging termine
+    dependsOn:
+    - BuildDev
+    - BuildStaging
+    condition: and(succeeded('BuildDev'), succeeded('BuildStaging'))
     displayName: Build Stage for Prod environment
     jobs:
       - job: BuildMobileApp
@@ -60,15 +73,21 @@ stages:
         steps:
           - script: echo building mobile application
             displayName: Building Mobile App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
       - job: BuildReactApp
         dependsOn: BuildMobileApp
         displayName: Build React App
         steps:
           - script: echo building react application
             displayName: Building React App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
       - job: BuildNodeApp
         dependsOn: BuildReactApp
         displayName: Build Node App
         steps:
           - script: echo building node application
-            displayName: Building NodeJS App
+            displayName: Building Node App
+          - script: echo running unit tests
+            displayName: Running Unit Tests
