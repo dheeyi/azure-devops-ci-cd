@@ -33,6 +33,8 @@ stages:
             displayName: Running Unit Tests
 
   - stage: BuildStaging
+    dependsOn: BuildDev
+    condition: succeeded('BuildDev')
     displayName: Build Stage for Staging environment
     jobs:
       - job: BuildMobileAPP
@@ -58,6 +60,9 @@ stages:
             displayName: Running Unit Tests
 
   - stage: BuildProd
+    dependsOn:
+    - BuildDev
+    - BuildStaging
     displayName: Build Stage for Prod environment
     jobs:
       - job: BuildMobileAP
