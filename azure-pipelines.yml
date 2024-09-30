@@ -17,6 +17,7 @@ stages:
             displayName: Running Unit Tests
       - job: BuildReactApp
         displayName: Build React App
+        dependsOn: BuildMobileAPP
         steps:
           - script: echo building react application
             displayName: Buildind React App
@@ -24,6 +25,7 @@ stages:
             displayName: Running Unit Tests
       - job: BuildNodeApp
         displayName: Build Node App
+        dependsOn: BuildReactApp
         steps:
           - script: echo building node application
             displayName: Building NodeJS App
@@ -43,6 +45,7 @@ stages:
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildReactApp
+        dependsOn: BuildMobileAPP
         displayName: Build React App
         steps:
           - script: echo building react application
@@ -50,6 +53,7 @@ stages:
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildNodeApp
+        dependsOn: BuildReactApp
         displayName: Build Node App
         steps:
           - script: echo building node application
@@ -72,6 +76,7 @@ stages:
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildReactApp
+        dependsOn: BuildMobileAP
         displayName: Build React App
         steps:
           - script: echo building react application
@@ -79,6 +84,7 @@ stages:
           - script: echo running unit tests
             displayName: Running Unit Tests
       - job: BuildNodeApp
+        dependsOn: BuildReactApp
         displayName: Build Node App
         steps:
           - script: echo building node application
