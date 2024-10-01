@@ -2,7 +2,7 @@ trigger:
 - master
 
 pool:
-  name: SelfHostedPool
+  name: AWSPool
 
 stages:
   - stage: BuildDev
