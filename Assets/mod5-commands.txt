@@ -1,0 +1,22 @@
+// setup maui
+
+install dotnet 
+dotnet --info
+dotnet workload list
+sudo dotnet workload install maui 
+dotnet workload search
+
+
+// workloads for android, ios, maui, etc
+Instalando Workloads
+
+sudo dotnet workload install maui
+sudo dotnet workload install android
+sudo dotnet workload install maccatalyst
+sudo dotnet workload install ios
+sudo dotnet workload install maui-android
+
+// keytool
+keytool -genkeypair -v -keystore c3mobileapp.keystore -alias c3mobileapp -keyalg RSA -keysize 2048 -validity 10000
+
+
