@@ -1,3 +1,22 @@
+// comandos dotnet
+
+dotnet clean
+dotnet restore
+dotnet build
+dotnet run
+
+
+// docker
+
+docker pull mcr.microsoft.com/azure-sql-edge
+docker run -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=Sample@!2' -e 'MSSQL_PID=Developer' -e 'MSSQL_USER=SA' -p 1433:1433 -d --name=sql mcr.microsoft.com/azure-sql-edge
+
+//docker - mod 7
+
+docker build -t c1netcoreapp2:latest .
+docker run -d -p 5001:8080 --name c1netcoreapp2-container c1netcoreapp2:latest
+
+
 // setup maui
 
 install dotnet 
