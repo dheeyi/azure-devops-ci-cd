@@ -1,0 +1,60 @@
+trigger:
+  - main
+
+pool:
+  name: LocalPool
+
+variables:
+  - group: groupSecret
+
+stages:
+  - stage: AndroidStage
+    displayName: 'Stage: Android stage'
+    jobs:
+      - job: AndroidJob
+        displayName: 'Job: Android job'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Task: Install .Net Core v8'
+            inputs:
+              packageType: 'sdk'
+              version: '8.0.400'
+
+          - task: Bash@3
+            displayName: 'Task: Install MAUI workloads Android: dotnet workload install android'
+            inputs:
+              targetType: 'inline'
+              script: |
+                dotnet nuget locals all --clear
+                dotnet workload install android maui-android maccatalyst --source https://aka.ms/dotnet8/nuget/index.json --source https://api.nuget.org/v3/index.json
+
+          - task: DownloadSecureFile@1
+            displayName: 'Task: Download Keystore File'
+            name: keystore_file
+            inputs:
+              secureFile: 'c3mobileapp.keystore'
+
+          - task: CopyFiles@2
+            displayName: 'Task Import secure file to project'
+            inputs:
+              SourceFolder: $(Agent.TempDirectory)
+              Contents: 'c3mobileapp.keystore'
+              TargetFolder: C3MobileApp/
+
+          - task: Bash@3
+            displayName: 'Task: Build Android MAUI app'
+            inputs:
+              targetType: 'inline'
+              script: |
+                dotnet publish C3MobileApp.csproj -f net8.0-android -c Release --output '$(Build.ArtifactStagingDirectory)/Android' \
+                -p:AndroidKeyStore=true \
+                -p:AndroidSigningKeyStore=C3MobileApp/c3mobileapp.keystore \
+                -p:AndroidSigningKeyAlias=c3mobileapp \
+                -p:AndroidSigningKeyPass=$(keystorePassword) \
+                -p:AndroidSigningStorePass=$(keystorePassword)
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Task: Publish Android app to artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/Android'
+              ArtifactName: 'Android'
