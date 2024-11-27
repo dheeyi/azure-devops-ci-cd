@@ -1,0 +1,51 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  name: 'LocalPool'
+
+variables:
+  - group: C2WebAppSecrets
+  - template: .azureDevOps/prodVariables.yml
+  - name: isProduction
+    value: $[ eq(variables['Build.SourceBranch'], 'refs/heads/main') ]
+
+stages:
+  - stage: BuildNextApp
+    displayName: 'Stage: Build Next App'
+    jobs:
+      - job: BuildApp
+        displayName: 'Job: Build App'
+        steps:
+          - task: NodeTool@0
+            displayName: 'Step: Install Node.js'
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm install
+            displayName: 'Step: Install dependencies'
+
+          - script: npm run test
+            displayName: 'Step: Run unit tests'
+
+          - script: npm run build
+            displayName: 'Step: Build Next.js App'
+          
+  - stage: DeployNextApp
+    displayName: 'Stage: Deploy Next App'
+    dependsOn: BuildNextApp
+    condition: and(succeeded(), eq(variables['isProduction'], 'true'))
+    jobs:
+      - job: DeployNextApp
+        displayName: 'Job: Deploy Next App'
+        steps:
+          - task: vercel-deployment-task@1
+            displayName: 'Task: Deploy Next App'
+            inputs:
+              vercelProjectId: $(vercelProjectId)
+              vercelOrgId: $(vercelOrgId)
+              vercelToken: $(vercelToken)
+              production: $(isProduction)
