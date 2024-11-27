@@ -20,13 +20,22 @@ stages:
               packageType: 'sdk'
               version: '8.0.400'
 
+          - task: SonarCloudPrepare@3
+            displayName: 'Task: Prepare analysis Configuration on SonarCloud'
+            inputs:
+              SonarCloud: 'SonarCloudAzure'
+              organization: '$(sonarOrganization)'
+              scannerMode: 'dotnet'
+              projectName: '$(sonarProjectName)'
+              projectKey: '$(sonarProjectKey)'
+
           - task: Bash@3
             displayName: 'Task: Install MAUI workloads Android: dotnet workload install android'
             inputs:
               targetType: 'inline'
               script: |
                 dotnet nuget locals all --clear
-                dotnet workload install android maui-android maccatalyst --source https://aka.ms/dotnet8/nuget/index.json --source https://api.nuget.org/v3/index.json
+                dotnet workload install android maui-android maccatalyst ios --source https://aka.ms/dotnet8/nuget/index.json --source https://api.nuget.org/v3/index.json
 
           - task: DownloadSecureFile@1
             displayName: 'Task: Download Keystore File'
@@ -58,3 +67,13 @@ stages:
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)/Android'
               ArtifactName: 'Android'
+
+          - task: SonarCloudAnalyze@3
+            displayName: 'Task: Run code analysis on SonarCloud'
+            inputs:
+              jdkversion: 'JAVA_HOME_17_X64'
+
+          - task: SonarCloudPublish@3
+            displayName: 'Task: Publish quality gate result on SonarCloud'
+            inputs:
+              pollingTimeoutSec: '300'
