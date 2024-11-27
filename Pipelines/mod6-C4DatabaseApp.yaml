@@ -1,0 +1,78 @@
+trigger:
+  - main
+
+parameters:
+  - name: projectNamesConfigurations
+    type: object
+    default:
+      - projectName: 'C5DatabaseApp'
+        projectExtension: '.sqlproj'
+        buildArguments: '/p:NetCoreBuild=true'
+
+variables:
+  - name: solution
+    value: '$(Build.SourcesDirectory)/C4DatabaseApp.sqlproj'
+  - name: buildConf
+    value: 'Release'
+  - name: outputPath
+    value: '$(Build.SourcesDirectory)/C4DatabaseApp/bin/$(buildConf)'
+
+pool:
+  name: LocalPool
+
+stages:
+  - stage: SQLServerBuild
+    displayName: 'Stage: Sql Server Database Build'
+    jobs:
+      - job: Build
+        displayName: 'Job: Build publish Sql Database'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Step: Use/Install .NET SDK 8.0.402'
+            inputs:
+              packageType: 'sdk'
+              version: '8.0.402'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Step: Build .dacpac for SQL Project'
+            inputs:
+              command: build
+              projects: '$(solution)'
+              arguments: '--configuration $(buildConf) /p:NetCoreBuild=true /p:OutputPath=$(outputPath)'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Step: Publish Pipeline Artifact Sql Server Database'
+            inputs:
+              targetPath: '$(outputPath)'
+              artifact: drop
+
+  - stage: DeployToAzure
+    displayName: 'Stage: Deploy .dacpac to Azure Database'
+    dependsOn: SQLServerBuild
+    condition: succeeded()
+    jobs:
+      - job: Deploy
+        displayName: 'Job: Deploy to Azure SQL Server Database'
+        steps:
+          - task: DownloadBuildArtifacts@1
+            displayName: 'Step: Download Artifact C5DatabaseApp(drop)'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.DefaultWorkingDirectory)/drop'
+
+          - task: SqlAzureDacpacDeployment@1
+            displayName: 'Step: Deploy to azure database'
+            inputs:
+              azureSubscription: 'Azure subscription 1 (6568hjt3d0-abn4f2-4867-815b-ugghhss234)'
+              AuthenticationType: 'server'
+              ServerName: 'database-server-goowia-solutions.database.windows.net'
+              DatabaseName: 'C4DBDatabaseApp'
+              SqlUsername: 'admin-database'
+              SqlPassword: 'Sample@!2'
+              deployType: 'DacpacTask'
+              DeploymentAction: 'Publish'
+              DacpacFile: '$(Agent.BuildDirectory)/**/*.dacpac'
+              AdditionalArguments: ''
+              DeleteFirewallRule: True
